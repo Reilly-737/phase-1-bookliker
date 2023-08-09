@@ -37,18 +37,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
             likedByList = document.createElement("span");
             likedByList.textContent = `Liked by: ${book.users.map(user => user.username).join(", ")}`;
+
             likeButton.addEventListener("click", () => {
+                const hasLiked = book.users.some(user => user.id === newUserId)
              fetch(`http://localhost:3000/books/${book.id}`, {
                   method: "PATCH",
                   headers: {
                     "Content-Type": "application/json",
                   },
                   body: JSON.stringify({
-                    users: [...book.users, {id: newUserId, username: "New User"}],
+                    users: hasLiked
+                    ? book.users.filter(user => user.id !== newUserId )
+                    : [...book.users, {id: newUserId, username: "New User"}],
                   }),
                 })
                 .then(() => {
+                    if(hasLiked){
                     book.users.push({id: newUserId, username: "New User"});
+                    } else {
+                        book.users.push({id: newUserId, username: "New User"});
+                    }
                      likedByList.textContent = `Liked by: ${book.users.map(user => user.username).join(", ")}`;
                     
                 })
